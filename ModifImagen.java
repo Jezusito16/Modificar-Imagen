@@ -1,8 +1,12 @@
 import java.awt.image.*;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.awt.*;
+import java.awt.event.*;
 
+import javax.swing.*;
 import javax.imageio.ImageIO;
 
 public class ModifImagen{
@@ -97,23 +101,91 @@ public class ModifImagen{
 
         return out;
     }
+    
+    static JFrame frame = new JFrame("Image Editor");
+    static String outputDir = "out.jpg";
+    static String inputDir = "a.png";
+    static BufferedImage inputImg;
+    static BufferedImage outputImg;
 
-    public static void main(String[] args) {
+    public static void setOutputImage() {
+        File f = new File(outputDir);
+        if (f.exists()) {
+            ImageIcon output = new ImageIcon(outputDir);
+            frame.getContentPane().add(BorderLayout.LINE_END, new JLabel(output));
+            System.out.print("funsiona?");
+        }
+    }
+
+    public static void createFrame() throws Exception {
+        
+        ImageIcon image = new ImageIcon(inputDir);
         try {
-            BufferedImage img = ImageIO.read(new File(args[1]));
-            int op = Integer.parseInt(args[0]);
-            if (op == 0) {
-                img = binarizado(img);
-            } else if (op == 1) {
-                img = RGBadd(img, Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
-            } else if (op == 2) {
-                img = addRGB(img, Integer.parseInt(args[2]));
-            } else
-                System.out.println("Opción no implementada");
+            
+        JButton binarized = new JButton("Binarized");
+        JButton changeColors = new JButton("Change Colors");
+        JPanel panel = new JPanel();
+        inputImg = ImageIO.read(new File(inputDir));
 
-            ImageIO.write(img, "jpg", new File("out.jpg"));
-        } catch (IOException e) {
+        binarized.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    outputImg = binarizado(inputImg);
+                    ImageIO.write(outputImg, "jpg", new File("out.jpg"));
+                    setOutputImage();
+                } catch (Exception ee) {
+                    //TODO: handle exception
+                }
+            }
+        });
+        
+        changeColors.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    outputImg = RGBadd(inputImg, 100, 100, 100);
+                    ImageIO.write(outputImg, "jpg", new File("out.jpg"));
+                    setOutputImage();
+                } catch (Exception ee) {
+                    // TODO: handle exception
+                }
+
+            }
+        });
+        panel.add(BorderLayout.NORTH, binarized);
+        panel.add(BorderLayout.SOUTH, changeColors);
+        frame.getContentPane().add(BorderLayout.CENTER, panel);
+        } catch (Exception e) {
             System.out.println("No existe la imagen");
-        }       
+        }
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(1000, 500);
+
+        frame.getContentPane().add(BorderLayout.LINE_START, new JLabel(image));
+        setOutputImage();
+
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) throws Exception{
+        // try {
+        //     BufferedImage img = ImageIO.read(new File(args[1]));
+        //     int op = Integer.parseInt(args[0]);
+        //     if (op == 0) {
+        //         img = binarizado(img);
+        //     } else if (op == 1) {
+        //         img = RGBadd(img, Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
+        //     } else if (op == 2) {
+        //         img = addRGB(img, Integer.parseInt(args[2]));
+        //     } else
+        //         System.out.println("Opción no implementada");
+
+        //     ImageIO.write(img, "jpg", new File("out.jpg"));
+        // } catch (IOException e) {
+        //     System.out.println("No existe la imagen");
+        // }
+        createFrame();
     }
 }
